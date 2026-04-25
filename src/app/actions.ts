@@ -90,12 +90,17 @@ export async function submitQuoteRequest(data: {
       </html>
     `;
 
-    await resend.emails.send({
+    const { data: resendData, error: resendError } = await resend.emails.send({
       from: 'Queens Pilates <onboarding@resend.dev>',
       to: ['leesookil75@gmail.com'],
       subject: `[퀸즈필라테스] 새 견적 요청 — ${data.name}${data.studioName ? ` (${data.studioName})` : ''}`,
       html: emailHtml,
     });
+
+    if (resendError) {
+      console.error('Resend API Error:', resendError);
+      return { success: false, error: '이메일 발송 실패: ' + resendError.message };
+    }
 
     // Also send confirmation to customer if they provided email
     if (data.email) {
