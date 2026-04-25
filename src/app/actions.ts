@@ -83,7 +83,7 @@ export async function submitQuoteRequest(data: {
             </div>
           </div>
           <div class="footer">
-            퀸즈필라테스 공식 홈페이지 견적 요청 시스템 • 수신: mubin95@hanmail.net
+            퀸즈필라테스 공식 홈페이지 견적 요청 시스템 • 수신: leesookil75@gmail.com
           </div>
         </div>
       </body>
@@ -92,32 +92,37 @@ export async function submitQuoteRequest(data: {
 
     await resend.emails.send({
       from: 'Queens Pilates <onboarding@resend.dev>',
-      to: ['mubin95@hanmail.net'],
+      to: ['leesookil75@gmail.com'],
       subject: `[퀸즈필라테스] 새 견적 요청 — ${data.name}${data.studioName ? ` (${data.studioName})` : ''}`,
       html: emailHtml,
     });
 
     // Also send confirmation to customer if they provided email
     if (data.email) {
-      await resend.emails.send({
-        from: 'Queens Pilates <onboarding@resend.dev>',
-        to: [data.email],
-        subject: '[퀸즈필라테스] 견적 요청이 정상적으로 접수되었습니다',
-        html: `
-          <div style="font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; max-width: 500px; margin: 0 auto; padding: 32px; background: #0d0d0d; color: #f5f0e8; border-radius: 12px;">
-            <h1 style="color: #c9a84c; margin-bottom: 8px;">👑 퀸즈필라테스</h1>
-            <p style="color: #a09880; margin-top: 0;">안녕하세요, <strong style="color:#f5f0e8">${data.name}</strong>님!</p>
-            <p style="line-height: 1.8; color: #c8c0b0;">
-              견적 요청이 정상적으로 접수되었습니다.<br>
-              담당자가 빠른 시일 내에 <strong style="color:#c9a84c">${data.phone}</strong>으로 연락드리겠습니다.
-            </p>
-            <div style="background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 16px; margin: 24px 0;">
-              <p style="margin: 0; font-size: 0.9rem; color: #a09880;">문의하신 기구: <strong style="color:#c9a84c">${productList}</strong></p>
+      try {
+        await resend.emails.send({
+          from: 'Queens Pilates <onboarding@resend.dev>',
+          to: [data.email],
+          subject: '[퀸즈필라테스] 견적 요청이 정상적으로 접수되었습니다',
+          html: `
+            <div style="font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; max-width: 500px; margin: 0 auto; padding: 32px; background: #0d0d0d; color: #f5f0e8; border-radius: 12px;">
+              <h1 style="color: #c9a84c; margin-bottom: 8px;">👑 퀸즈필라테스</h1>
+              <p style="color: #a09880; margin-top: 0;">안녕하세요, <strong style="color:#f5f0e8">${data.name}</strong>님!</p>
+              <p style="line-height: 1.8; color: #c8c0b0;">
+                견적 요청이 정상적으로 접수되었습니다.<br>
+                담당자가 빠른 시일 내에 <strong style="color:#c9a84c">${data.phone}</strong>으로 연락드리겠습니다.
+              </p>
+              <div style="background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); border-radius: 8px; padding: 16px; margin: 24px 0;">
+                <p style="margin: 0; font-size: 0.9rem; color: #a09880;">문의하신 기구: <strong style="color:#c9a84c">${productList}</strong></p>
+              </div>
+              <p style="font-size: 0.85rem; color: #666;">긴급 문의: <a href="tel:01035208808" style="color:#c9a84c">010-3520-8808</a></p>
             </div>
-            <p style="font-size: 0.85rem; color: #666;">긴급 문의: <a href="tel:01035208808" style="color:#c9a84c">010-3520-8808</a></p>
-          </div>
-        `,
-      });
+          `,
+        });
+      } catch (customerEmailError) {
+        console.error('Customer email sending failed (Free tier restriction):', customerEmailError);
+        // 무료 요금제에서는 본인 계정으로만 메일이 발송되므로, 고객에게 발송 실패해도 전체 접수를 중단시키지 않음
+      }
     }
 
     return { success: true };
